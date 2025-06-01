@@ -1,28 +1,47 @@
-import { TriangleUpIcon } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
+import FeedBackItem from "./FeedBackItem";
+import Spinner from "./Spinner";
+import Errormessage from "./Errormessage ";
+
+///https://bytegrad.com/course-assets/projects/corpcomment/api/feedbacks
 
 export default function FeedbackList() {
+  const [feedbackItems, setFeedbackItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(
+      "https://bytegrad.com/course-assets/projects/corpcomment/api/feedbacks"
+    )
+      .then((Response) => {
+        if (!Response.ok) {
+          throw new Error();
+        }
+        return Response.json();
+      })
+      .then((data) => {
+        console.log(data.feedbacks);
+        setFeedbackItems(data.feedbacks);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setErrorMessage("Something went wrong. Please try again later.");
+        setIsLoading(false);
+      });
+  }, []);
+
   return (
     <ol className="feedback-list">
-      <li className="feedback">
-        <button>
-          <TriangleUpIcon />
-          <span>593</span>
-        </button>
-
-        <div>
-          <p>B</p>
-        </div>
-
-        <div>
-          <p>ByteGrad</p>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Nisi rerum
-            exercitationem autem laboriosam, ut alias!
-          </p>
-        </div>
-
-        <p>4d</p>
-      </li>
+      {isLoading && <Spinner />}
+      {errorMessage && <Errormessage message={errorMessage} />}
+      {!isLoading && !errorMessage && feedbackItems.length > 0 && (
+        <h2 className="feedback-list-title">Feedback</h2>
+      )}
+      {feedbackItems.map((feedbackItem) => (
+        <FeedBackItem key={feedbackItem.id} feedbackItem={feedbackItem} />
+      ))}
     </ol>
   );
 }
