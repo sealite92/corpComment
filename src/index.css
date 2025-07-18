@@ -673,3 +673,7 @@ h1 > span {
     padding: 0 15px;
   }
 }
+
+.color-red {
+  color: #3de;
+}
